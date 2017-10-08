@@ -1,0 +1,62 @@
+<?php
+class AuthenticationModel extends CI_Model {
+	
+	function __construct(){
+		parent::__construct();
+		//initialise the autoload things for this class
+	}
+	
+	//login function - checks valid info and returns data
+	function login($data) {
+        //checking for User1
+        $doc = $this->db->where('username',$data['username'])->get('user1')->result_array()[0];
+        //checking for User2
+        $ast = $this->db->where('username',$data['username'])->get('user2')->result_array()[0];
+        
+        if(count($doc)) {	
+            if($doc['pass'] == $data['password']) {
+
+    			      if($doc['stat'] == 1){
+    				
+                    $session_data = array(
+                        'user_id'   => $doc['id'],
+                        'name'      => $doc['name'],
+                    );
+                    
+                    // Add user data in session
+                    $this->session->set_userdata('user1_session',$session_data);
+
+                    // redirecting
+                    redirect('home1');
+    			      }
+    			      return 2;
+    		    }
+    		    return 3;
+        }
+
+        else if(count($ast))
+        {   
+            if($ast['pass'] == $data['password']) {
+
+                if($ast['stat'] == 1){
+                    
+                    $session_data = array(
+                        'user_id'   => $ast['id'],
+                        'name'      => $ast['name'],
+                    );
+                    
+                    // Add user data in session
+                    $this->session->set_userdata('user2_session',$session_data);
+
+                    // redirecting if admin
+                    redirect('home2');
+                }
+                return 2;
+            }
+            return 3;
+        }
+
+        //user not exists
+        return 4;
+    }
+}
