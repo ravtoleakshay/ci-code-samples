@@ -1,0 +1,48 @@
+<?php 
+	// Set form to enctype='mulitpart/form-data' to get this code working or use form_open_multipart('action_url');
+
+   	//initialise image upload options and return image path
+	function imageupload($file,$folder) {
+		// $file - image file specified in input, (name="poster") ie. $file = 'poster'
+		// $folder - folder name to upload image create some folder inside uploads folder with 777 permission to current user
+
+		$config = array(
+          'upload_path' => "uploads/".$folder."/",
+          'upload_url' => base_url() . "uploads/".$folder."/",
+          'allowed_types' => "jpg|png|jpeg|pdf",	// you can add more here, this is minimal code
+          'max_size' 	=> 100,
+          'max_width' 	=> 1024,
+          'max_height' 	=> 768,
+      	);
+
+		$this->upload->initialize($config);
+		$this->upload->do_upload($file);
+		// $this->upload->display_errors();
+
+		$upload_files = array('upload_data' => $this->upload->data());
+
+		/* $upload_files contains
+		Array
+		(
+	        [file_name]     => mypic.jpg
+	        [file_type]     => image/jpeg
+	        [file_path]     => /path/to/your/upload/
+	        [full_path]     => /path/to/your/upload/jpg.jpg
+	        [raw_name]      => mypic
+	        [orig_name]     => mypic.jpg
+	        [client_name]   => mypic.jpg
+	        [file_ext]      => .jpg
+	        [file_size]     => 22.2
+	        [is_image]      => 1
+	        [image_width]   => 800
+	        [image_height]  => 600
+	        [image_type]    => jpeg
+	        [image_size_str] => width="800" height="200"
+		)
+		*/
+
+		$imagepath = base_url()."uploads/".$folder."/".$upload_files['upload_data']['file_name'];
+		$this->upload->data();
+		return $imagepath;
+	}
+?>
