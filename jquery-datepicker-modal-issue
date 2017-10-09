@@ -1,0 +1,14 @@
+/*
+Scenario : If you are using jquery datepicker with month/year select dropdown in bootstrap modal, it will not work properly.
+below is code sample which i have used to accomplish task and below is the fix i have added in js code.
+*/
+$('input[type=date]').datepicker({
+    dateFormat: 'yy-mm-dd',
+    changeMonth: true,
+    changeYear: true,
+    yearRange: "-80:+0",
+});
+
+// script to get focus on change month/year dropdown of jquery datepicke in modal
+var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+$.fn.modal.Constructor.prototype.enforceFocus = function() {};
