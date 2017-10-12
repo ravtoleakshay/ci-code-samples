@@ -1,0 +1,91 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Authentication extends CI_Controller {
+
+	function __construct(){
+		parent::__construct();
+		//initialise the autoload things for this class
+		$this->load->model('AuthenticationModel');
+	}
+
+	public function index()
+	{
+		if(isset($this->session->user_session))
+    {
+    	redirect('home','refresh');
+		}
+		$data['alert'] = $this->session->flashdata('alert');
+		$data['error'] = $this->session->flashdata('error');
+		$data['success'] = $this->session->flashdata('success');
+		
+		$this->load->view('auth/login',$data);
+	}
+
+	//login verify
+	function logincheck()
+  {
+    $this->form_validation->set_rules('username', 'Username','trim|required|min_length[10]');
+    $this->form_validation->set_rules('password', 'Password','trim|required');
+
+    if($this->form_validation->run() == FALSE)
+    {
+      if(isset($this->session->user_session))
+			{	
+				redirect('home');
+			}
+			else
+			{
+				$this->session->set_flashdata('error',validation_errors());
+				redirect('authentication');
+			}
+	  }
+    else 
+    {
+      $data = array (
+        'username' => $this->input->post('username'),
+        'password' => md5($this->input->post('password'))
+      );
+
+      // hardcoded user
+      if(($data['username'] == "admin") && $data['password']=="21232f297a57a5a743894a0e4a801fc3"){
+        $su_session = array(
+          'email' => 'admin@admin.com',
+          'name' => 'Super Admin',
+          'username' => 'Super Admin'
+        );
+
+        $this->session->set_userdata('su_session',$su_session);
+        redirect('su');
+      }
+
+      $verified = $this->AuthenticationModel->login($data);
+
+      if($verified == 2) {
+        $this->session->set_flashdata("error","Your Account is not active");
+        redirect('authentication');
+      }
+      if($verified == 3) {
+        $this->session->set_flashdata("error","Username or Password is Wrong");
+        redirect('authentication');
+      }
+      if($verified == 4) {
+        $this->session->set_flashdata("error","User Dosen't Exists");
+        redirect('authentication');
+      }
+      else {
+        $this->session->set_flashdata("error","Something wrong..!!");
+        redirect('authentication');
+      }
+    }
+	}
+
+	// Logout from home page
+  public function logout()
+  {
+    $this->session->unset_userdata('user1_session', '');
+    $this->session->unset_userdata('user2_session', '');
+
+    redirect('authentication');
+  }
+}
